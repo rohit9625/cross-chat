@@ -1,0 +1,48 @@
+package dev.androhit.crosschat.designsystem.textfields
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import dev.androhit.crosschat.designsystem.ui.theme.CrossChatTheme
+
+@Composable
+fun SimpleTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    shape: Shape = RoundedCornerShape(12.dp),
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = {
+            label?.let { Text(text = label) }
+        },
+        singleLine = true,
+        modifier = modifier,
+        shape = shape,
+    )
+}
+
+@Preview
+@Composable
+private fun SimpleTextFieldPreview() {
+    CrossChatTheme {
+        Surface {
+            SimpleTextField(
+                value = "",
+                onValueChange = {},
+                label = "Email",
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+}
