@@ -14,11 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.androhit.crosschat.R
 import dev.androhit.crosschat.designsystem.buttons.PrimaryButton
 import dev.androhit.crosschat.designsystem.buttons.SimpleTextButton
 import dev.androhit.crosschat.designsystem.textfields.PasswordTextField
@@ -43,10 +45,12 @@ fun SignUpScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Welcome to")
-                Text(text = "CrossChat", color = MaterialTheme.colorScheme.primary, style = TextStyle(
-                    fontSize = 32.sp,
-                ))
+                Text(text = stringResource(R.string.welcome_to))
+                Text(
+                    text = stringResource(R.string.app_name),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = TextStyle(fontSize = 32.sp)
+                )
             }
 
             Column(
@@ -58,23 +62,23 @@ fun SignUpScreen(
                 SimpleTextField(
                     value = uiState.name,
                     onValueChange = { onEvent(AuthEvent.OnNameChanged(it)) },
-                    label = "Name",
+                    label = stringResource(R.string.name),
                 )
                 SimpleTextField(
                     value = uiState.email,
                     onValueChange = { onEvent(AuthEvent.OnEmailChanged(it)) },
-                    label = "Email",
+                    label = stringResource(R.string.email),
                     modifier = Modifier
                 )
                 PasswordTextField(
                     value = uiState.password,
                     onValueChange = { onEvent(AuthEvent.OnPasswordChanged(it)) },
-                    label = "Password",
+                    label = stringResource(R.string.password),
                     modifier = Modifier
                 )
 
                 PrimaryButton(
-                    text = "Sign Up",
+                    text = stringResource(R.string.sign_up),
                     onClick = {
                         onEvent(
                             AuthEvent.OnSubmit(
@@ -93,9 +97,9 @@ fun SignUpScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = "Already have an account?")
+                Text(text = stringResource(R.string.already_existing_user))
                 SimpleTextButton(
-                    text = "Sign In",
+                    text = stringResource(R.string.sign_in),
                     onClick = onNavigateToSignIn,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
