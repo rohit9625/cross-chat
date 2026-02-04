@@ -15,7 +15,9 @@ import dev.androhit.crosschat.auth.ui.viewmodel.SignInViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun AuthNavigation() {
+fun AuthNavigation(
+    onAuthenticated: () -> Unit
+) {
     val authBackStack = rememberNavBackStack(Route.Auth.SignIn)
 
     NavDisplay(
@@ -33,12 +35,7 @@ fun AuthNavigation() {
                     uiState = uiState,
                     onEvent = authViewModel::onEvent,
                     onNavigateToSignUp = { authBackStack.add(Route.Auth.SignUp) },
-                    onNavigateToHome = {
-                        // Remove auth navigation graph to avoid navigating back after
-                        // successful authentication
-                        authBackStack.remove(Route.Auth)
-                        authBackStack.add(Route.Main)
-                    }
+                    onNavigateToHome = onAuthenticated
                 )
             }
             entry<Route.Auth.SignUp> {
@@ -48,10 +45,7 @@ fun AuthNavigation() {
                     uiState = uiState,
                     onEvent = authViewModel::onEvent,
                     onNavigateToSignIn = { authBackStack.removeLastOrNull() },
-                    onNavigateToHome = {
-                        authBackStack.remove(Route.Auth)
-                        authBackStack.add(Route.Main)
-                    }
+                    onNavigateToHome = onAuthenticated
                 )
             }
         }
