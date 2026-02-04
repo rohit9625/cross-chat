@@ -1,5 +1,7 @@
 package dev.androhit.crosschat.di
 
+import dev.androhit.crosschat.auth.data.AuthRepositoryImpl
+import dev.androhit.crosschat.auth.domain.AuthRepository
 import dev.androhit.crosschat.data.network.CrossChatApi
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -13,12 +15,14 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 private const val BASE_URL = "http://localhost:8000/api/"
 
 val networkModule = module {
     singleOf(::CrossChatApi)
+    singleOf(::AuthRepositoryImpl) bind AuthRepository::class
 
     single<HttpClient> {
         HttpClient(OkHttp) {
