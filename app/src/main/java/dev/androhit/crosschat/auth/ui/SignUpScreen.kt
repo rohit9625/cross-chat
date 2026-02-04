@@ -25,6 +25,7 @@ import dev.androhit.crosschat.designsystem.buttons.PrimaryButton
 import dev.androhit.crosschat.designsystem.buttons.SimpleTextButton
 import dev.androhit.crosschat.designsystem.textfields.PasswordTextField
 import dev.androhit.crosschat.designsystem.textfields.SimpleTextField
+import dev.androhit.crosschat.designsystem.texts.ErrorText
 import dev.androhit.crosschat.designsystem.ui.theme.CrossChatTheme
 
 @Composable
@@ -55,7 +56,6 @@ fun SignUpScreen(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
                     .width(IntrinsicSize.Min)
             ) {
@@ -63,34 +63,42 @@ fun SignUpScreen(
                     value = uiState.name,
                     onValueChange = { onEvent(AuthEvent.OnNameChanged(it)) },
                     label = stringResource(R.string.name),
+                    supportingText = uiState.nameError,
                 )
                 SimpleTextField(
                     value = uiState.email,
                     onValueChange = { onEvent(AuthEvent.OnEmailChanged(it)) },
                     label = stringResource(R.string.email),
-                    modifier = Modifier
+                    supportingText = uiState.emailError,
                 )
                 PasswordTextField(
                     value = uiState.password,
                     onValueChange = { onEvent(AuthEvent.OnPasswordChanged(it)) },
                     label = stringResource(R.string.password),
-                    modifier = Modifier
+                    supportingText = uiState.passwordError,
                 )
 
-                PrimaryButton(
-                    text = stringResource(R.string.sign_up),
-                    onClick = {
-                        onEvent(
-                            AuthEvent.OnSubmit(
-                                action = SubmitAction.SIGN_UP,
-                                onSuccess = onNavigateToHome
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    ErrorText(
+                        error = uiState.generalError ?: "This is test error"
+                    )
+                    PrimaryButton(
+                        text = stringResource(R.string.sign_up),
+                        onClick = {
+                            onEvent(
+                                AuthEvent.OnSubmit(
+                                    action = SubmitAction.SIGN_UP,
+                                    onSuccess = onNavigateToHome
+                                )
                             )
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth()
-                )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
             }
 
             Row(
