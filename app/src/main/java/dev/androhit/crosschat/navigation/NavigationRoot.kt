@@ -8,8 +8,10 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 
 @Composable
-fun NavigationRoot() {
-    val rootBackStack = rememberNavBackStack(Route.Auth)
+fun NavigationRoot(isAuthenticated: Boolean = false) {
+    val rootBackStack = rememberNavBackStack(
+        if(isAuthenticated) Route.Main else Route.Auth
+    )
 
     NavDisplay(
         backStack = rootBackStack,

@@ -21,16 +21,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.androhit.crosschat.R
+import dev.androhit.crosschat.auth.ui.event.SignInEvent
+import dev.androhit.crosschat.auth.ui.state.SignInUiState
 import dev.androhit.crosschat.designsystem.buttons.PrimaryButton
 import dev.androhit.crosschat.designsystem.buttons.SimpleTextButton
 import dev.androhit.crosschat.designsystem.textfields.PasswordTextField
 import dev.androhit.crosschat.designsystem.textfields.SimpleTextField
+import dev.androhit.crosschat.designsystem.texts.ErrorText
 import dev.androhit.crosschat.designsystem.ui.theme.CrossChatTheme
 
 @Composable
 fun SignInScreen(
-    uiState: AuthUiState,
-    onEvent: (AuthEvent) -> Unit,
+    uiState: SignInUiState,
+    onEvent: (SignInEvent) -> Unit,
     onNavigateToSignUp: () -> Unit = {},
     onNavigateToHome: () -> Unit = {}
 ) {
@@ -55,35 +58,41 @@ fun SignInScreen(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
                     .width(IntrinsicSize.Min)
             ) {
                 SimpleTextField(
                     value = uiState.email,
-                    onValueChange = { onEvent(AuthEvent.OnEmailChanged(it)) },
+                    onValueChange = { onEvent(SignInEvent.OnEmailChanged(it)) },
                     label = stringResource(R.string.email),
+                    supportingText = uiState.emailError,
                 )
                 PasswordTextField(
                     value = uiState.password,
-                    onValueChange = { onEvent(AuthEvent.OnPasswordChanged(it)) },
+                    onValueChange = { onEvent(SignInEvent.OnPasswordChanged(it)) },
                     label = stringResource(R.string.password),
+                    supportingText = uiState.passwordError,
                 )
 
-                PrimaryButton(
-                    text = stringResource(R.string.sign_in),
-                    onClick = {
-                        onEvent(
-                            AuthEvent.OnSubmit(
-                                action = SubmitAction.SIGN_IN,
-                                onSuccess = onNavigateToHome
-                            )
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth()
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    ErrorText(
+                        error = uiState.generalError ?: ""
+                    )
+                    PrimaryButton(
+                        text = stringResource(R.string.sign_in),
+                        onClick = {
+                            if(!uiState.isLoading) {
+                                onEvent(SignInEvent.OnSubmit(onSuccess = onNavigateToHome))
+                            }
+                        },
+                        isLoading = uiState.isLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
             }
 
             Row(
@@ -93,7 +102,11 @@ fun SignInScreen(
                 Text(text = stringResource(R.string.new_to_cross_chat))
                 SimpleTextButton(
                     text = stringResource(R.string.sign_up),
-                    onClick = onNavigateToSignUp,
+                    onClick = {
+                        if(!uiState.isLoading) {
+                            onNavigateToSignUp()
+                        }
+                    },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.SemiBold
                     )
@@ -108,7 +121,7 @@ fun SignInScreen(
 private fun SignInScreenPreview() {
     CrossChatTheme(dynamicColor = false) {
         SignInScreen(
-            uiState = AuthUiState(
+            uiState = SignInUiState(
                 email = "test@example.com",
                 password = "test_password"
             ),

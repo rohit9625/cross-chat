@@ -21,16 +21,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.androhit.crosschat.R
+import dev.androhit.crosschat.auth.ui.event.SignUpEvent
+import dev.androhit.crosschat.auth.ui.state.SignUpUiState
 import dev.androhit.crosschat.designsystem.buttons.PrimaryButton
 import dev.androhit.crosschat.designsystem.buttons.SimpleTextButton
 import dev.androhit.crosschat.designsystem.textfields.PasswordTextField
 import dev.androhit.crosschat.designsystem.textfields.SimpleTextField
+import dev.androhit.crosschat.designsystem.texts.ErrorText
 import dev.androhit.crosschat.designsystem.ui.theme.CrossChatTheme
 
 @Composable
 fun SignUpScreen(
-    uiState: AuthUiState,
-    onEvent: (AuthEvent) -> Unit,
+    uiState: SignUpUiState,
+    onEvent: (SignUpEvent) -> Unit,
     onNavigateToSignIn: () -> Unit = {},
     onNavigateToHome: () -> Unit = {}
 ) {
@@ -55,42 +58,45 @@ fun SignUpScreen(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
                     .width(IntrinsicSize.Min)
             ) {
                 SimpleTextField(
                     value = uiState.name,
-                    onValueChange = { onEvent(AuthEvent.OnNameChanged(it)) },
+                    onValueChange = { onEvent(SignUpEvent.OnNameChanged(it)) },
                     label = stringResource(R.string.name),
+                    supportingText = uiState.nameError,
                 )
                 SimpleTextField(
                     value = uiState.email,
-                    onValueChange = { onEvent(AuthEvent.OnEmailChanged(it)) },
+                    onValueChange = { onEvent(SignUpEvent.OnEmailChanged(it)) },
                     label = stringResource(R.string.email),
-                    modifier = Modifier
+                    supportingText = uiState.emailError,
                 )
                 PasswordTextField(
                     value = uiState.password,
-                    onValueChange = { onEvent(AuthEvent.OnPasswordChanged(it)) },
+                    onValueChange = { onEvent(SignUpEvent.OnPasswordChanged(it)) },
                     label = stringResource(R.string.password),
-                    modifier = Modifier
+                    supportingText = uiState.passwordError,
                 )
 
-                PrimaryButton(
-                    text = stringResource(R.string.sign_up),
-                    onClick = {
-                        onEvent(
-                            AuthEvent.OnSubmit(
-                                action = SubmitAction.SIGN_UP,
-                                onSuccess = onNavigateToHome
-                            )
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth()
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    ErrorText(error = uiState.generalError ?: "")
+                    PrimaryButton(
+                        text = stringResource(R.string.sign_up),
+                        onClick = {
+                            if(!uiState.isLoading) {
+                                onEvent(SignUpEvent.OnSubmit(onSuccess = onNavigateToHome))
+                            }
+                        },
+                        isLoading = uiState.isLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
             }
 
             Row(
@@ -100,7 +106,11 @@ fun SignUpScreen(
                 Text(text = stringResource(R.string.already_existing_user))
                 SimpleTextButton(
                     text = stringResource(R.string.sign_in),
-                    onClick = onNavigateToSignIn,
+                    onClick = {
+                        if(!uiState.isLoading) {
+                            onNavigateToSignIn()
+                        }
+                    },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
             }
@@ -113,7 +123,7 @@ fun SignUpScreen(
 private fun SignUpScreenPreview() {
     CrossChatTheme(dynamicColor = false) {
         SignUpScreen(
-            uiState = AuthUiState(
+            uiState = SignUpUiState(
                 name = "Harry Potter",
                 email = "harry@example.com",
                 password = "harry_password"

@@ -2,8 +2,10 @@ package dev.androhit.crosschat.designsystem.buttons
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +20,8 @@ fun PrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(12.dp)
+    shape: Shape = RoundedCornerShape(12.dp),
+    isLoading: Boolean = false,
 ) {
     Button(
         onClick = onClick,
@@ -26,18 +29,27 @@ fun PrimaryButton(
         shape = shape,
         contentPadding = PaddingValues(vertical = 12.dp, horizontal = 24.dp)
     ) {
-        Text(text = text, style = MaterialTheme.typography.titleMedium)
+        if(isLoading) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text(text = text, style = MaterialTheme.typography.titleMedium)
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun PrimaryButtonPreview() {
-    CrossChatTheme {
+    CrossChatTheme(dynamicColor = false) {
         PrimaryButton(
             text = "Primary Button",
             onClick = { },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            isLoading = true
         )
     }
 }
