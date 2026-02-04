@@ -1,5 +1,6 @@
 package dev.androhit.crosschat.di
 
+import dev.androhit.crosschat.BuildConfig
 import dev.androhit.crosschat.auth.data.AuthRepositoryImpl
 import dev.androhit.crosschat.auth.domain.AuthRepository
 import dev.androhit.crosschat.data.network.CrossChatApi
@@ -18,7 +19,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-private const val BASE_URL = "http://localhost:8000/api/"
+private const val BASE_URL = BuildConfig.BASE_URL
 
 val networkModule = module {
     singleOf(::CrossChatApi)
