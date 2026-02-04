@@ -24,7 +24,7 @@ class AuthRepositoryImpl(
         return try {
             val response = api.post(
                 path = "auth/login",
-                body = LoginRequest(email, password)
+                body = LoginRequest(email = email, password = password)
             )
 
             when (response.status.value) {
@@ -34,6 +34,7 @@ class AuthRepositoryImpl(
                     Result.Success(Unit)
                 }
                 400 -> Result.Error(DataError.Network.BAD_REQUEST)
+                401 -> Result.Error(DataError.Network.UNAUTHORIZED)
                 429 -> Result.Error(DataError.Network.TOO_MANY_REQUESTS)
                 in 500..599 -> Result.Error(DataError.Network.SERVER_ERROR)
                 else -> Result.Error(DataError.Network.UNKNOWN)
@@ -47,7 +48,7 @@ class AuthRepositoryImpl(
         return try {
             val response = api.post(
                 path = "auth/register",
-                body = RegisterRequest(name, email, password)
+                body = RegisterRequest(name = name, email = email, password = password)
             )
 
             when (response.status.value) {
@@ -57,7 +58,7 @@ class AuthRepositoryImpl(
                     Result.Success(Unit)
                 }
                 400 -> Result.Error(DataError.Network.BAD_REQUEST)
-                401 -> Result.Error(DataError.Network.UNAUTHORIZED)
+                409 -> Result.Error(DataError.Network.CONFLICT)
                 429 -> Result.Error(DataError.Network.TOO_MANY_REQUESTS)
                 in 500..599 -> Result.Error(DataError.Network.SERVER_ERROR)
                 else -> Result.Error(DataError.Network.UNKNOWN)

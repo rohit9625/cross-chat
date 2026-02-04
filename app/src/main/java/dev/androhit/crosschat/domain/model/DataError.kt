@@ -4,6 +4,7 @@ interface DataError: Error {
     enum class Network: DataError {
         REQUEST_TIMEOUT,
         UNAUTHORIZED,
+        CONFLICT,
         BAD_REQUEST,
         TOO_MANY_REQUESTS,
         NO_INTERNET,

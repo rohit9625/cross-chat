@@ -3,6 +3,7 @@ package dev.androhit.crosschat
 import android.app.Application
 import dev.androhit.crosschat.di.dataModule
 import dev.androhit.crosschat.di.networkModule
+import dev.androhit.crosschat.di.uiModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -14,7 +15,7 @@ class MainApplication: Application() {
         startKoin {
             androidLogger()
             androidContext(this@MainApplication)
-            modules(dataModule, networkModule)
+            modules(dataModule, networkModule, uiModule)
         }
     }
 }

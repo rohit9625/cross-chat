@@ -1,6 +1,6 @@
-package dev.androhit.crosschat.auth.ui
+package dev.androhit.crosschat.auth.ui.state
 
-data class AuthUiState(
+data class SignUpUiState(
     val name: String = "",
     val email: String = "",
     val password: String = "",
@@ -8,4 +8,5 @@ data class AuthUiState(
     val nameError: String? = null,
     val emailError: String? = null,
     val passwordError: String? = null,
+    val isLoading: Boolean = false,
 )
