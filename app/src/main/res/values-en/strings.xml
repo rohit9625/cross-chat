@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cross Chat</string>
+    <string name="welcome_to">Welcome to</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="new_to_cross_chat">New to Cross Chat?</string>
+    <string name="already_existing_user">Already an existing user?</string>
+</resources>

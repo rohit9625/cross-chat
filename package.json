@@ -1,0 +1,16 @@
+{
+  "name": "crosschat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "translate": "lingo.dev run",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "lingo.dev": "^0.128.0"
+  }
+}

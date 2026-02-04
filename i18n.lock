@@ -1,0 +1,12 @@
+version: 1
+checksums:
+  41324bf7ae5dc35d306f0b0cc7e13c07:
+    app_name: b8a540b456845d7fd9ff2f4d8f9c6e25
+    welcome_to: 4755f43f32df645d9c686057878b0738
+    name: 9368b5a047572b6051f334af5aa76819
+    email: e7f34943a0c2fb849db1839ff6ef5cb5
+    password: 223a61cf906ab9c40d22612c588dff48
+    sign_in: ec7b8f314fe9bc6591006707484ede61
+    sign_up: 0dd2ae69be4618c1f9e615774a4509ca
+    new_to_cross_chat: 2b23ff920eb5b6789e9d4f743db876bc
+    already_existing_user: 7d1c9892076c5c0d8b68f09f0872b491
