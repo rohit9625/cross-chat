@@ -3,11 +3,15 @@ package dev.androhit.crosschat.di
 import dev.androhit.crosschat.BuildConfig
 import dev.androhit.crosschat.auth.data.AuthRepositoryImpl
 import dev.androhit.crosschat.auth.domain.AuthRepository
+import dev.androhit.crosschat.data.CredentialManager
 import dev.androhit.crosschat.data.network.CrossChatApi
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.ANDROID
 import io.ktor.client.plugins.logging.LogLevel
@@ -26,6 +30,7 @@ val networkModule = module {
     singleOf(::AuthRepositoryImpl) bind AuthRepository::class
 
     single<HttpClient> {
+        val credentialManager = get<CredentialManager>()
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
                 json(json = Json { ignoreUnknownKeys = true })
@@ -39,6 +44,19 @@ val networkModule = module {
 
             install(DefaultRequest) {
                 url(BASE_URL)
+            }
+
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        val token = credentialManager.getAccessCredentials().accessToken
+                        if (token != null) {
+                            BearerTokens(accessToken = token, refreshToken =  null)
+                        } else {
+                            null
+                        }
+                    }
+                }
             }
 
             install(Logging) {
