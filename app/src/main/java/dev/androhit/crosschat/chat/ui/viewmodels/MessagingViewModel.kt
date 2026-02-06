@@ -33,13 +33,9 @@ class MessagingViewModel(
             val currentUserId = credentialManager.getAccessCredentials().userId
             repository.connectToSocket()
             repository.observeMessages(chatId).collect { message ->
-                val newMessage = MessageUiState(
-                    text = message.text,
+                val newMessage = message.toUiState(currentUserId).copy(
                     sender = message.senderName ?: chatTitle.split("").first(),
-                    isFromMe = message.senderId == currentUserId,
-                    timestamp = DateTimeUtils.formatTime(message.timestamp),
                 )
-
                 _uiState.update {
                     it.copy(chatHistory = listOf(newMessage) + it.chatHistory)
                 }

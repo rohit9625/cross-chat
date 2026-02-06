@@ -146,6 +146,12 @@ fun MessageItem(
                 )
             }
         }
+        Text(
+            text = message.timestamp ?: "",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 4.dp),
+        )
     }
 }
 
