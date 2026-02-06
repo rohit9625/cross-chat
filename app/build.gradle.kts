@@ -52,6 +52,9 @@ android {
 }
 
 dependencies {
+    implementation ("io.socket:socket.io-client:2.1.1") {
+        exclude("org.json", "json")
+    }
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.auth)
