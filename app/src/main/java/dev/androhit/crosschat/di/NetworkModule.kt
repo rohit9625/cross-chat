@@ -3,6 +3,8 @@ package dev.androhit.crosschat.di
 import dev.androhit.crosschat.BuildConfig
 import dev.androhit.crosschat.auth.data.AuthRepositoryImpl
 import dev.androhit.crosschat.auth.domain.AuthRepository
+import dev.androhit.crosschat.chat.data.ChatRepositoryImpl
+import dev.androhit.crosschat.chat.domain.ChatRepository
 import dev.androhit.crosschat.data.CredentialManager
 import dev.androhit.crosschat.data.network.CrossChatApi
 import io.ktor.client.HttpClient
@@ -28,6 +30,7 @@ private const val BASE_URL = BuildConfig.BASE_URL
 val networkModule = module {
     singleOf(::CrossChatApi)
     singleOf(::AuthRepositoryImpl) bind AuthRepository::class
+    singleOf(::ChatRepositoryImpl) bind ChatRepository::class
 
     single<HttpClient> {
         val credentialManager = get<CredentialManager>()
