@@ -39,11 +39,7 @@ class MessagingViewModel(
         val currentUserId = credentialManager.getAccessCredentials().userId
         when(val result = repository.getAllMessages(chatId)) {
             is Result.Success -> {
-                val messages = result.data.map { msg ->
-                    msg.toUiState(currentUserId).copy(
-                        sender = msg.senderName ?: chatTitle.split("").first(),
-                    )
-                }
+                val messages = result.data.map { it.toUiState(currentUserId)}
                 _uiState.update { it.copy(chatHistory = messages) }
             }
             is Result.Error -> {
@@ -56,12 +52,9 @@ class MessagingViewModel(
         viewModelScope.launch {
             val currentUserId = credentialManager.getAccessCredentials().userId
             repository.connectToSocket()
-            repository.observeMessages(chatId).collect { message ->
-                val newMessage = message.toUiState(currentUserId).copy(
-                    sender = message.senderName ?: chatTitle.split("").first(),
-                )
+            repository.observeMessages(chatId).collect { msg ->
                 _uiState.update {
-                    it.copy(chatHistory = listOf(newMessage) + it.chatHistory)
+                    it.copy(chatHistory = listOf(msg.toUiState(currentUserId)) + it.chatHistory)
                 }
             }
         }

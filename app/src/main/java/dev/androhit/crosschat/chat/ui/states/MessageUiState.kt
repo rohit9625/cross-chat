@@ -12,7 +12,7 @@ data class MessageUiState(
 
 fun Message.toUiState(currentUserId: Int?) = MessageUiState(
     text = text,
-    sender = senderName ?: "",
+    sender = senderName.split(" ").first(),
     isFromMe = senderId == currentUserId,
     timestamp = DateTimeUtils.formatTime(timestamp),
 )

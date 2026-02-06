@@ -10,6 +10,8 @@ data class MessageDto(
     val chatId: Int,
     @SerialName("sender_id")
     val senderId: Int,
+    @SerialName("sender_name")
+    val senderName: String,
     val content: String,
     @SerialName("created_at")
     val createdAt: String,

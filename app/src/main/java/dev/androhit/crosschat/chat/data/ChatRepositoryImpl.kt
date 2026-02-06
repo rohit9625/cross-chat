@@ -75,6 +75,7 @@ class ChatRepositoryImpl(
                         id = msg.id,
                         text = msg.content,
                         senderId = msg.senderId,
+                        senderName = msg.senderName,
                         timestamp = DateTimeUtils.parseUtcDate(msg.createdAt),
                     )
                 }
@@ -108,6 +109,7 @@ class ChatRepositoryImpl(
                 id = it.id,
                 text = it.content,
                 senderId = it.senderId,
+                senderName = it.senderName,
                 timestamp = DateTimeUtils.parseUtcDate(it.createdAt),
             )
         }
