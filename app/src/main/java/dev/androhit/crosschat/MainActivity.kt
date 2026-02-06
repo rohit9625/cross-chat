@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         // Using blocking operation to check if user is authenticated
         // TODO("Must remove this blocking call after splash screen is setup)
         val isAuthenticated = runBlocking {
-            credentialManager.getAccessToken() != null
+            credentialManager.getAccessCredentials().accessToken != null
         }
         setContent {
             // Disable dynamic theme temporarily

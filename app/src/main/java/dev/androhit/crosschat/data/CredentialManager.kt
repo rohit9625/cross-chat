@@ -2,6 +2,7 @@ package dev.androhit.crosschat.data
 
 import android.content.Context
 import androidx.datastore.dataStore
+import dev.androhit.crosschat.domain.model.AccessCredentials
 import dev.androhit.crosschat.util.CredentialSerializer
 import kotlinx.coroutines.flow.first
 
@@ -23,6 +24,14 @@ class CredentialManager(private val context: Context) {
 
     suspend fun getAccessToken(): String? {
         return accessToken ?: context.dataStore.data.first().accessToken
+    }
+
+    suspend fun saveAccessCredentials(credentials: AccessCredentials) {
+        context.dataStore.updateData { credentials }
+    }
+
+    suspend fun getAccessCredentials(): AccessCredentials {
+        return context.dataStore.data.first()
     }
 
     suspend fun saveRefreshToken(token: String) {

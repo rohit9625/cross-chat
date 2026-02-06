@@ -7,6 +7,7 @@ import dev.androhit.crosschat.auth.data.model.RegisterRequest
 import dev.androhit.crosschat.auth.domain.AuthRepository
 import dev.androhit.crosschat.data.CredentialManager
 import dev.androhit.crosschat.data.network.CrossChatApi
+import dev.androhit.crosschat.domain.model.AccessCredentials
 import dev.androhit.crosschat.domain.model.DataError
 import dev.androhit.crosschat.domain.model.Result
 import io.ktor.client.call.body
@@ -30,7 +31,12 @@ class AuthRepositoryImpl(
             when (response.status.value) {
                 in 200..299 -> {
                     val authResponse = response.body<AuthResponse>()
-                    credentialManager.saveAccessToken(authResponse.token)
+                    credentialManager.saveAccessCredentials(
+                        AccessCredentials(
+                            userId = authResponse.user.id,
+                            accessToken = authResponse.token
+                        )
+                    )
                     Result.Success(Unit)
                 }
                 400 -> Result.Error(DataError.Network.BAD_REQUEST)
@@ -54,7 +60,12 @@ class AuthRepositoryImpl(
             when (response.status.value) {
                 in 200..299 -> {
                     val authResponse = response.body<AuthResponse>()
-                    credentialManager.saveAccessToken(authResponse.token)
+                    credentialManager.saveAccessCredentials(
+                        AccessCredentials(
+                            userId = authResponse.user.id,
+                            accessToken = authResponse.token
+                        )
+                    )
                     Result.Success(Unit)
                 }
                 400 -> Result.Error(DataError.Network.BAD_REQUEST)
