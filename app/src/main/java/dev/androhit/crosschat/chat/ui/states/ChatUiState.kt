@@ -14,7 +14,7 @@ fun Chat.toUiState() = ChatUiState(
     id = id,
     title = displayName,
     subTitle = lastMessage?.let {
-        "${lastMessage.senderName.split(" ").first()}: ${lastMessage.text}"
+        "${lastMessage.senderName?.split(" ")?.first()}: ${lastMessage.text}"
     } ?: "Your chat with $displayName",
     lastMessageTime = DateTimeUtils.formatTime(lastMessageTime),
 )

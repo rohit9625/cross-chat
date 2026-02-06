@@ -6,9 +6,3 @@ data class MessagingUiState(
     val chatTitle: String = "",
 )
 
-data class MessageUiState(
-    val text: String,
-    val sender: String,
-    val isFromMe: Boolean,
-    val timestamp: String? = null,
-)

@@ -4,14 +4,19 @@ import dev.androhit.crosschat.chat.data.dto.ChatListDto
 import dev.androhit.crosschat.chat.domain.ChatRepository
 import dev.androhit.crosschat.chat.domain.model.Chat
 import dev.androhit.crosschat.chat.domain.model.Message
+import dev.androhit.crosschat.data.CredentialManager
 import dev.androhit.crosschat.data.network.CrossChatApi
 import dev.androhit.crosschat.domain.model.ApiResponse
 import dev.androhit.crosschat.domain.model.DataError
 import dev.androhit.crosschat.domain.model.Result
 import dev.androhit.crosschat.util.DateTimeUtils
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ChatRepositoryImpl(
     private val api: CrossChatApi,
+    private val socketClient: ChatSocketClient,
+    private val credentialManager: CredentialManager,
 ): ChatRepository {
     override suspend fun getAllChats(userId: Int): Result<List<Chat>, DataError.Network> {
         return try {
@@ -20,7 +25,7 @@ class ChatRepositoryImpl(
             if (response.success && response.data != null) {
                 val chats = response.data.chats.map { chat ->
                     val displayName = chat.members.find { it.userId != userId }?.name ?: chat.type
-                    val formattedTime = DateTimeUtils.parseUtcDate(chat.lastMessage?.createdAt ?: chat.createdAt)
+                    val lastMessageTime = DateTimeUtils.parseUtcDate(chat.lastMessage?.createdAt ?: chat.createdAt)
 
                     val lastMessage = chat.lastMessage?.let { message ->
                         val sender = chat.members.find { it.userId == message.senderId }
@@ -30,9 +35,11 @@ class ChatRepositoryImpl(
                             else -> sender.name
                         }
                         Message(
+                            id = message.id,
                             text = message.content,
                             senderId = message.senderId,
-                            senderName = senderName
+                            senderName = senderName,
+                            timestamp = lastMessageTime,
                         )
                     }
 
@@ -40,7 +47,7 @@ class ChatRepositoryImpl(
                         id = chat.id,
                         displayName = displayName,
                         lastMessage = lastMessage,
-                        lastMessageTime = formattedTime,
+                        lastMessageTime = lastMessageTime,
                     )
                 }
                 Result.Success(data = chats)
@@ -55,5 +62,30 @@ class ChatRepositoryImpl(
 
     override suspend fun createChat(participantEmail: String): Result<Chat, DataError.Network> {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun connectToSocket() {
+        credentialManager.getAccessToken()?.let {
+            socketClient.connect(it)
+        }
+    }
+
+    override fun disconnectFromSocket() {
+        socketClient.disconnect()
+    }
+
+    override fun sendMessage(chatId: Int, text: String) {
+        socketClient.sendMessage(chatId, text)
+    }
+
+    override fun observeMessages(chatId: Int): Flow<Message> {
+        return socketClient.observeMessages(chatId).map {
+            Message(
+                id = it.id,
+                text = it.content,
+                senderId = it.senderId,
+                timestamp = DateTimeUtils.parseUtcDate(it.createdAt),
+            )
+        }
     }
 }

@@ -25,7 +25,10 @@ import dev.androhit.crosschat.chat.ui.states.ChatUiState
 import dev.androhit.crosschat.designsystem.ui.theme.CrossChatTheme
 
 @Composable
-fun ChatListScreen(uiState: ChatListUiState) {
+fun ChatListScreen(
+    uiState: ChatListUiState,
+    onOpenChat: (Int, String) -> Unit = { _, _ -> },
+) {
     Scaffold { innerPadding ->
         LazyColumn(
             modifier = Modifier.padding(innerPadding)
@@ -34,7 +37,7 @@ fun ChatListScreen(uiState: ChatListUiState) {
                 ChatListItem(
                     chat = chat,
                     modifier = Modifier.clickable {
-
+                        onOpenChat(chat.id, chat.title)
                     }
                 )
             }

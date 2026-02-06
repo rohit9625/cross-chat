@@ -9,8 +9,11 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import dev.androhit.crosschat.chat.ui.screens.ChatListScreen
+import dev.androhit.crosschat.chat.ui.screens.MessagingScreen
 import dev.androhit.crosschat.chat.ui.viewmodels.ChatListViewModel
+import dev.androhit.crosschat.chat.ui.viewmodels.MessagingViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun MainNavigation() {
@@ -27,7 +30,25 @@ fun MainNavigation() {
             entry<Route.Main.Home> {
                 val viewModel = koinViewModel<ChatListViewModel>()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                ChatListScreen(uiState)
+                ChatListScreen(
+                    uiState = uiState,
+                    onOpenChat = { chatId, chatTitle ->
+                        mainBackStack.add(Route.Main.Chat(chatId, chatTitle))
+                    }
+                )
+            }
+            entry<Route.Main.Chat> {
+                val viewModel = koinViewModel<MessagingViewModel>(
+                    parameters = { parametersOf(it.chatId, it.chatTitle) }
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                MessagingScreen(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent,
+                    onNavigateBack = {
+                        mainBackStack.removeLastOrNull()
+                    }
+                )
             }
         }
     )
