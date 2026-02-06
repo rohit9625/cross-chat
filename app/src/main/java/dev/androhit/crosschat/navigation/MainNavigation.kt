@@ -1,16 +1,16 @@
 package dev.androhit.crosschat.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.androhit.crosschat.chat.ui.screens.ChatListScreen
+import dev.androhit.crosschat.chat.ui.viewmodels.ChatListViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MainNavigation() {
@@ -25,9 +25,9 @@ fun MainNavigation() {
         ),
         entryProvider = entryProvider {
             entry<Route.Main.Home> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Home Screen")
-                }
+                val viewModel = koinViewModel<ChatListViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                ChatListScreen(uiState)
             }
         }
     )
