@@ -25,7 +25,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-private const val BASE_URL = BuildConfig.BASE_URL
+private const val BASE_URL = "${BuildConfig.BASE_URL}/api/"
 
 val networkModule = module {
     singleOf(::CrossChatApi)

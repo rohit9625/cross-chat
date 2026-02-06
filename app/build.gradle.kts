@@ -25,20 +25,21 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"http://localhost:8000/api/\""
+                "\"http://localhost:8000\""
             )
         }
         release {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://cross-chat-backend.vercel.app/api/\""
+                "\"https://cross-chat-backend.vercel.app\""
             )
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
