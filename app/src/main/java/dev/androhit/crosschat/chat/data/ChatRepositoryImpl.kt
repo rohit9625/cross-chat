@@ -1,6 +1,7 @@
 package dev.androhit.crosschat.chat.data
 
 import dev.androhit.crosschat.chat.data.dto.ChatListDto
+import dev.androhit.crosschat.chat.data.dto.MessageListDto
 import dev.androhit.crosschat.chat.domain.ChatRepository
 import dev.androhit.crosschat.chat.domain.model.Chat
 import dev.androhit.crosschat.chat.domain.model.Message
@@ -62,6 +63,29 @@ class ChatRepositoryImpl(
 
     override suspend fun createChat(participantEmail: String): Result<Chat, DataError.Network> {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllMessages(chatId: Int): Result<List<Message>, DataError.Network> {
+        return try {
+            val response = api.get<ApiResponse<MessageListDto>>("chats/$chatId/messages")
+
+            if (response.success && response.data != null) {
+                val chats = response.data.messages.map { msg ->
+                    Message(
+                        id = msg.id,
+                        text = msg.content,
+                        senderId = msg.senderId,
+                        timestamp = DateTimeUtils.parseUtcDate(msg.createdAt),
+                    )
+                }
+                Result.Success(data = chats)
+            } else {
+                Result.Error(DataError.Network.SERVER_ERROR)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Error(DataError.Network.UNKNOWN)
+        }
     }
 
     override suspend fun connectToSocket() {

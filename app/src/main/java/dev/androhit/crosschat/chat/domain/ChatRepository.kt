@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface ChatRepository {
     suspend fun getAllChats(userId: Int): Result<List<Chat>, DataError.Network>
     suspend fun createChat(participantEmail: String): Result<Chat, DataError.Network>
+    suspend fun getAllMessages(chatId: Int): Result<List<Message>, DataError.Network>
     
     suspend fun connectToSocket()
     fun disconnectFromSocket()

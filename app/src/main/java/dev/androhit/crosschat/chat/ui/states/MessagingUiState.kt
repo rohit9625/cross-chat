@@ -4,5 +4,6 @@ data class MessagingUiState(
     val chatHistory: List<MessageUiState> = emptyList(),
     val message: String = "",
     val chatTitle: String = "",
+    val error: String? = null,
 )
 
