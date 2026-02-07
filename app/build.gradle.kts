@@ -32,7 +32,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://cross-chat-backend.vercel.app\""
+                "\"https://cross-chat-backend-692aaaf69006.herokuapp.com\""
             )
             isMinifyEnabled = false
             proguardFiles(
