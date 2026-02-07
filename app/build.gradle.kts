@@ -25,20 +25,21 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"http://localhost:8000/api/\""
+                "\"http://localhost:8000\""
             )
         }
         release {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://cross-chat-backend.vercel.app/api/\""
+                "\"https://cross-chat-backend.vercel.app\""
             )
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -52,8 +53,12 @@ android {
 }
 
 dependencies {
+    implementation ("io.socket:socket.io-client:2.1.1") {
+        exclude("org.json", "json")
+    }
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
@@ -72,6 +77,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.androidx.datastore.preferences)
 
+    implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
