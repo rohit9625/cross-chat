@@ -61,6 +61,7 @@ fun MainNavigation() {
                     onEvent = viewModel::onEvent,
                     onProceedToChat = { chatId, chatTitle ->
                         mainBackStack.add(Route.Main.Chat(chatId, chatTitle))
+                        mainBackStack.remove(Route.Main.NewChat)
                     },
                     onNavigateBack = { mainBackStack.removeLastOrNull() }
                 )
