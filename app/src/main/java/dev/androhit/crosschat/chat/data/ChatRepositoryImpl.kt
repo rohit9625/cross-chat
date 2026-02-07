@@ -1,5 +1,6 @@
 package dev.androhit.crosschat.chat.data
 
+import dev.androhit.crosschat.chat.data.dto.ChatDto
 import dev.androhit.crosschat.chat.data.dto.ChatListDto
 import dev.androhit.crosschat.chat.data.dto.MessageListDto
 import dev.androhit.crosschat.chat.data.dto.UsersListDto
@@ -13,6 +14,7 @@ import dev.androhit.crosschat.domain.model.ApiResponse
 import dev.androhit.crosschat.domain.model.DataError
 import dev.androhit.crosschat.domain.model.Result
 import dev.androhit.crosschat.util.DateTimeUtils
+import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -64,7 +66,41 @@ class ChatRepositoryImpl(
     }
 
     override suspend fun createChat(participantEmail: String): Result<Chat, DataError.Network> {
-        TODO("Not yet implemented")
+        return try {
+            val response = api.post("chats", mapOf("email" to participantEmail)).body<ApiResponse<ChatDto>>()
+
+            if (response.success && response.data != null) {
+                val userId = credentialManager.getAccessCredentials().userId
+                    ?: return Result.Error(DataError.Network.UNKNOWN)
+                val chat = response.data
+                val displayName = chat.members.find { it.userId != userId }?.name ?: chat.type
+                val lastMessageTime = DateTimeUtils.parseUtcDate(chat.lastMessage?.createdAt ?: chat.createdAt)
+
+                val lastMessage = chat.lastMessage?.let { msg ->
+                    Message(
+                        id = msg.id,
+                        text = msg.content,
+                        senderId = msg.senderId,
+                        senderName = msg.senderName,
+                        timestamp = lastMessageTime,
+                    )
+                }
+
+                Result.Success(
+                    data = Chat(
+                        id = chat.id,
+                        displayName = displayName,
+                        lastMessage = lastMessage,
+                        lastMessageTime = lastMessageTime,
+                    )
+                )
+            } else {
+                Result.Error(DataError.Network.SERVER_ERROR)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Error(DataError.Network.UNKNOWN)
+        }
     }
 
     override suspend fun getAllMessages(chatId: Int): Result<List<Message>, DataError.Network> {
