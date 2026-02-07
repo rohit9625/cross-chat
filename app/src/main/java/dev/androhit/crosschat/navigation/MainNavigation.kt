@@ -9,8 +9,10 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import dev.androhit.crosschat.chat.ui.screens.ChatListScreen
+import dev.androhit.crosschat.chat.ui.screens.CreateChatScreen
 import dev.androhit.crosschat.chat.ui.screens.MessagingScreen
 import dev.androhit.crosschat.chat.ui.viewmodels.ChatListViewModel
+import dev.androhit.crosschat.chat.ui.viewmodels.CreateChatViewModel
 import dev.androhit.crosschat.chat.ui.viewmodels.MessagingViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -34,7 +36,8 @@ fun MainNavigation() {
                     uiState = uiState,
                     onOpenChat = { chatId, chatTitle ->
                         mainBackStack.add(Route.Main.Chat(chatId, chatTitle))
-                    }
+                    },
+                    onNewChat = { mainBackStack.add(Route.Main.NewChat) }
                 )
             }
             entry<Route.Main.Chat> {
@@ -48,6 +51,18 @@ fun MainNavigation() {
                     onNavigateBack = {
                         mainBackStack.removeLastOrNull()
                     }
+                )
+            }
+            entry<Route.Main.NewChat> {
+                val viewModel = koinViewModel<CreateChatViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                CreateChatScreen(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent,
+                    onProceedToChat = { chatId, chatTitle ->
+                        mainBackStack.add(Route.Main.Chat(chatId, chatTitle))
+                    },
+                    onNavigateBack = { mainBackStack.removeLastOrNull() }
                 )
             }
         }

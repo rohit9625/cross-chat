@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -35,6 +37,7 @@ import dev.androhit.crosschat.designsystem.ui.theme.CrossChatTheme
 fun ChatListScreen(
     uiState: ChatListUiState,
     onOpenChat: (Int, String) -> Unit = { _, _ -> },
+    onNewChat: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -50,6 +53,18 @@ fun ChatListScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = onNewChat,
+                shape = CircleShape
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_add),
+                    contentDescription = "Add"
+                )
+                Text(text = "New Chat", style = MaterialTheme.typography.titleMedium)
+            }
         }
     ) { innerPadding ->
         LazyColumn(

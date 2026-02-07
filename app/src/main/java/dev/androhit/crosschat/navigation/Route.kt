@@ -20,5 +20,7 @@ sealed interface Route: NavKey {
         data object Home: Route, NavKey
         @Serializable
         data class Chat(val chatId: Int, val chatTitle: String): Route, NavKey
+        @Serializable
+        data object NewChat: Route, NavKey
     }
 }

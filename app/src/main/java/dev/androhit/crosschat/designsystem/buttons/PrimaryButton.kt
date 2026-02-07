@@ -22,10 +22,12 @@ fun PrimaryButton(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(12.dp),
     isLoading: Boolean = false,
+    enabled: Boolean = true,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
+        enabled = enabled,
         shape = shape,
         contentPadding = PaddingValues(vertical = 12.dp, horizontal = 24.dp)
     ) {

@@ -3,6 +3,7 @@ package dev.androhit.crosschat.di
 import dev.androhit.crosschat.auth.ui.viewmodel.SignInViewModel
 import dev.androhit.crosschat.auth.ui.viewmodel.SignUpViewModel
 import dev.androhit.crosschat.chat.ui.viewmodels.ChatListViewModel
+import dev.androhit.crosschat.chat.ui.viewmodels.CreateChatViewModel
 import dev.androhit.crosschat.chat.ui.viewmodels.MessagingViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -20,4 +21,5 @@ val uiModule = module {
             credentialManager = get()
         )
     }
+    viewModelOf(::CreateChatViewModel)
 }
