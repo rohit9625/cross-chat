@@ -2,9 +2,11 @@ package dev.androhit.crosschat.chat.data
 
 import dev.androhit.crosschat.chat.data.dto.ChatListDto
 import dev.androhit.crosschat.chat.data.dto.MessageListDto
+import dev.androhit.crosschat.chat.data.dto.UsersListDto
 import dev.androhit.crosschat.chat.domain.ChatRepository
 import dev.androhit.crosschat.chat.domain.model.Chat
 import dev.androhit.crosschat.chat.domain.model.Message
+import dev.androhit.crosschat.chat.domain.model.User
 import dev.androhit.crosschat.data.CredentialManager
 import dev.androhit.crosschat.data.network.CrossChatApi
 import dev.androhit.crosschat.domain.model.ApiResponse
@@ -51,13 +53,13 @@ class ChatRepositoryImpl(
                         lastMessageTime = lastMessageTime,
                     )
                 }
-                Result.Success(data = chats)
+                Result.Success<List<Chat>, DataError.Network>(data = chats)
             } else {
-                Result.Error(DataError.Network.SERVER_ERROR)
+                Result.Error<List<Chat>, DataError.Network>(DataError.Network.SERVER_ERROR)
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Result.Error(DataError.Network.UNKNOWN)
+            Result.Error<List<Chat>, DataError.Network>(DataError.Network.UNKNOWN)
         }
     }
 
@@ -86,6 +88,29 @@ class ChatRepositoryImpl(
         } catch (e: Exception) {
             e.printStackTrace()
             Result.Error(DataError.Network.UNKNOWN)
+        }
+    }
+
+    override suspend fun searchUsersByEmail(email: String): Result<List<User>, DataError.Network> {
+        return try {
+            val response = api.get<ApiResponse<UsersListDto>>("users/search?email=$email")
+
+            if(response.success && response.data != null) {
+                val users: List<User> = response.data.users.map {
+                    User(
+                        id = it.id,
+                        name = it.name,
+                        email = it.email,
+                    )
+                }
+                Result.Success<List<User>, DataError.Network>(users)
+            } else {
+                Result.Error<List<User>, DataError.Network>(DataError.Network.SERVER_ERROR)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Error<List<User>, DataError.Network>(DataError.Network.UNKNOWN)
         }
     }
 
