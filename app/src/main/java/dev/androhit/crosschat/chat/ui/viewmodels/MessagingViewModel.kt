@@ -7,14 +7,18 @@ import dev.androhit.crosschat.chat.ui.event.MessagingEvent
 import dev.androhit.crosschat.chat.ui.states.MessagingUiState
 import dev.androhit.crosschat.chat.ui.states.toUiState
 import dev.androhit.crosschat.data.CredentialManager
-import dev.androhit.crosschat.domain.model.Result
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MessagingViewModel(
     private val chatId: Int,
     private val chatTitle: String,
@@ -22,54 +26,65 @@ class MessagingViewModel(
     private val credentialManager: CredentialManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(MessagingUiState(chatTitle = chatTitle))
-    val uiState = _uiState.onStart {
-        fetchChatMessages()
+    private val _message = MutableStateFlow("")
+    private val _isLoading = MutableStateFlow(false)
+    private val _error = MutableStateFlow<String?>(null)
+
+    val uiState = flow {
+        val currentUserId = credentialManager.getAccessCredentials().userId
+        emit(currentUserId)
+    }.flatMapLatest { userId ->
+        combine(
+            repository.getMessagesForChat(chatId),
+            _message,
+            _isLoading,
+            _error
+        ) { messages, message, isLoading, error ->
+            MessagingUiState(
+                chatHistory = messages.map { it.toUiState(userId) },
+                message = message,
+                chatTitle = chatTitle,
+                isLoadingNewMessages = isLoading,
+                error = error
+            )
+        }.onStart {
+            refreshMessages()
+        }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        MessagingUiState(chatTitle = chatTitle),
+        MessagingUiState(chatTitle = chatTitle, isLoadingNewMessages = true),
     )
 
     init {
         observeMessages()
     }
 
-    private suspend fun fetchChatMessages() {
-        val currentUserId = credentialManager.getAccessCredentials().userId
-        when(val result = repository.getAllMessages(chatId)) {
-            is Result.Success -> {
-                val messages = result.data.map { it.toUiState(currentUserId)}
-                _uiState.update { it.copy(chatHistory = messages) }
-            }
-            is Result.Error -> {
-                _uiState.update { it.copy(error = result.error.toString()) }
-            }
+    private fun refreshMessages() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            repository.refreshMessages(chatId)
+            _isLoading.value = false
         }
     }
 
     private fun observeMessages() {
         viewModelScope.launch {
-            val currentUserId = credentialManager.getAccessCredentials().userId
             repository.connectToSocket()
-            repository.observeMessages(chatId).collect { msg ->
-                _uiState.update {
-                    it.copy(chatHistory = listOf(msg.toUiState(currentUserId)) + it.chatHistory)
-                }
-            }
+            repository.observeMessages(chatId).launchIn(viewModelScope)
         }
     }
 
     fun onEvent(event: MessagingEvent) {
         when (event) {
             is MessagingEvent.OnMessageChanged -> {
-                _uiState.update { it.copy(message = event.message) }
+                _message.value = event.message
             }
             MessagingEvent.OnSendMessage -> {
-                val currentMessage = _uiState.value.message
+                val currentMessage = _message.value
                 if (currentMessage.isNotBlank()) {
                     repository.sendMessage(chatId, currentMessage)
-                    _uiState.update { it.copy(message = "") }
+                    _message.value = ""
                 }
             }
         }
