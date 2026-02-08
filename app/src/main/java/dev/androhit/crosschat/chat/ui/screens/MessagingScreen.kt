@@ -146,6 +146,17 @@ fun MessageItem(
                 )
             }
         }
+        if (message.translatedText != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = message.translatedText,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                ),
+                color = if (message.isFromMe) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+            )
+        }
         Text(
             text = message.timestamp ?: "",
             style = MaterialTheme.typography.labelSmall,
@@ -214,7 +225,7 @@ private fun MessagingScreenPreview() {
                     MessageUiState("Hello!", "Rohit", false),
                     MessageUiState("Hi there!", "Me", true),
                     MessageUiState("How are you?", "Rohit", false),
-                    MessageUiState("I'm doing great, thanks!", "Me", true),
+                    MessageUiState("I have some work to finish.", "Me", true, "मुझे कुछ काम पूरा करना है।"),
                 ).reversed()
             ),
             onEvent = {}

@@ -8,6 +8,7 @@ data class MessageUiState(
     val sender: String,
     val isFromMe: Boolean,
     val timestamp: String? = null,
+    val translatedText: String? = null,
 )
 
 fun Message.toUiState(currentUserId: Int?) = MessageUiState(
@@ -15,4 +16,5 @@ fun Message.toUiState(currentUserId: Int?) = MessageUiState(
     sender = senderName.split(" ").first(),
     isFromMe = senderId == currentUserId,
     timestamp = DateTimeUtils.formatTime(timestamp),
+    translatedText = translatedText,
 )

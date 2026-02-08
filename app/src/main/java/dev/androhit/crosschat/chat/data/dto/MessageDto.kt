@@ -19,6 +19,10 @@ data class MessageDto(
     val autoTranslate: Boolean,
     @SerialName("translation_status")
     val translationStatus: String,
+    @SerialName("translated_text")
+    val translatedText: String? = null,
+    @SerialName("translated_language")
+    val translatedLanguage: String? = null,
     @SerialName("created_at")
     val createdAt: String,
     @SerialName("updated_at")
@@ -33,6 +37,7 @@ fun MessageDto.asEntity() = MessageEntity(
     senderName = senderName,
     autoTranslate = autoTranslate,
     translationStatus = translationStatus,
+    translatedText = translatedText,
     createdAt = DateTimeUtils.parseUtcDateToLong(createdAt) ?: 0L,
     updatedAt = DateTimeUtils.parseUtcDateToLong(updatedAt) ?: 0L,
 )

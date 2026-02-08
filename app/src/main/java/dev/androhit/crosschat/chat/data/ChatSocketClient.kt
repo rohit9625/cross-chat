@@ -3,6 +3,7 @@ package dev.androhit.crosschat.chat.data
 import android.util.Log
 import dev.androhit.crosschat.BuildConfig
 import dev.androhit.crosschat.chat.data.dto.MessageDto
+import dev.androhit.crosschat.chat.data.dto.MessageTranslatedDto
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -11,6 +12,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+
+sealed class SocketEvent {
+    data class NewMessage(val message: MessageDto) : SocketEvent()
+    data class MessageTranslated(val translation: MessageTranslatedDto) : SocketEvent()
+}
 
 class ChatSocketClient(private val json: Json) {
     private var socket: Socket? = null
@@ -41,12 +47,19 @@ class ChatSocketClient(private val json: Json) {
         socket?.emit(EVENT_SEND_MESSAGE, messageJson)
     }
 
-    fun observeMessages(chatId: Int): Flow<MessageDto> = callbackFlow {
-        val listener = Emitter.Listener { args ->
+    fun observeMessages(chatId: Int): Flow<SocketEvent> = callbackFlow {
+        val messageListener = Emitter.Listener { args ->
             val data = args[0] as JSONObject
             val messageDto = json.decodeFromString<MessageDto>(data.toString())
-            trySend(messageDto)
+            trySend(SocketEvent.NewMessage(messageDto))
         }
+
+        val translationListener = Emitter.Listener { args ->
+            val data = args[0] as JSONObject
+            val translationDto = json.decodeFromString<MessageTranslatedDto>(data.toString())
+            trySend(SocketEvent.MessageTranslated(translationDto))
+        }
+
         if (socket?.connected() == true) {
             socket?.emit(EVENT_JOIN_CHAT, chatId)
         } else {
@@ -55,10 +68,12 @@ class ChatSocketClient(private val json: Json) {
             }
         }
 
-        socket?.on(EVENT_NEW_MESSAGE, listener)
+        socket?.on(EVENT_NEW_MESSAGE, messageListener)
+        socket?.on(EVENT_MESSAGE_TRANSLATED, translationListener)
 
         awaitClose {
-            socket?.off(EVENT_NEW_MESSAGE, listener)
+            socket?.off(EVENT_NEW_MESSAGE, messageListener)
+            socket?.off(EVENT_MESSAGE_TRANSLATED, translationListener)
         }
     }
 
@@ -67,5 +82,6 @@ class ChatSocketClient(private val json: Json) {
         private const val EVENT_SEND_MESSAGE = "send_message"
         private const val EVENT_NEW_MESSAGE = "new_message"
         private const val EVENT_JOIN_CHAT = "join_chat"
+        private const val EVENT_MESSAGE_TRANSLATED = "message_translated"
     }
 }

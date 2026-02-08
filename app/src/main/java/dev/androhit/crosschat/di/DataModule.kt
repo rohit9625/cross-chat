@@ -20,7 +20,9 @@ val dataModule = module {
                 get(),
                 ChatDatabase::class.java,
                 Constants.DB_NAME
-            ).build()
+            )
+            .fallbackToDestructiveMigration(true) // Temporary solution
+            .build()
     }
     single { get<ChatDatabase>().dao }
     singleOf(::ChatLocalDataSource)

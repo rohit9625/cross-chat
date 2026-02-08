@@ -28,6 +28,8 @@ data class MessageEntity(
     val translationStatus: String,
     val createdAt: Long,
     val updatedAt: Long,
+    val translatedText: String? = null,
+    val translatedLanguage: String? = null,
 )
 
 fun MessageEntity.toMessage() = Message(
@@ -37,5 +39,21 @@ fun MessageEntity.toMessage() = Message(
     senderName = senderName,
     autoTranslate = autoTranslate,
     translationStatus = translationStatus,
+    translatedText = translatedText,
+    translatedLanguage = translatedLanguage,
     timestamp = createdAt,
+)
+
+fun Message.toEntity(chatId: Int) = MessageEntity(
+    id = id,
+    chatId = chatId,
+    text = text,
+    senderId = senderId,
+    senderName = senderName,
+    autoTranslate = autoTranslate,
+    translationStatus = translationStatus ?: "",
+    translatedText = translatedText,
+    translatedLanguage = translatedLanguage,
+    createdAt = timestamp ?: 0L,
+    updatedAt = timestamp ?: 0L,
 )
