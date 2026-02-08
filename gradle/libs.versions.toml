@@ -11,7 +11,9 @@ ktor = "3.4.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.3"
 kotlin = "2.3.0"
+ksp = "2.3.4"
 composeBom = "2026.01.01"
+room = "2.8.4"
 uiTextGoogleFonts = "1.10.2"
 navigation3 = "1.0.0"
 lifecycleViewmodelNav3 = "2.10.0"
@@ -57,6 +59,11 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 
+# Room Database
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+
 # Utility libraries
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
@@ -66,4 +73,4 @@ slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4jVersio
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
-
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}
