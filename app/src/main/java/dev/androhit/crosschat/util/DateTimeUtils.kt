@@ -1,43 +1,43 @@
 package dev.androhit.crosschat.util
 
-import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
 object DateTimeUtils {
-    private val apiDateFormat = SimpleDateFormat(
+    private val dateIsoFormat = SimpleDateFormat(
         "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
         Locale.US
     ).apply {
         timeZone = TimeZone.getTimeZone("UTC")
     }
 
-    fun parseUtcDate(utc: String): Date? {
+    fun parseUtcDateToLong(utc: String): Long? {
         return try {
-            apiDateFormat.parse(utc)
+            dateIsoFormat.parse(utc)?.time
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
 
-    fun formatTime(date: Date?): String? {
-        return date?.let {
+    fun formatTime(timestamp: Long?): String? {
+        return timestamp?.let {
             val formatter = SimpleDateFormat(
                 "hh:mm a",
                 Locale.getDefault()
             )
-            return formatter.format(it)
-        } ?: ""
+            return formatter.format(Date(it))
+        }
     }
 
-    fun formatSmartChatTime(utc: String): String {
-        val date = parseUtcDate(utc) ?: return ""
+    fun formatSmartChatTime(timestamp: Long?): String {
+        if (timestamp == null) return ""
+        val date = Date(timestamp)
 
         val now = System.currentTimeMillis()
-        val diff = now - date.time
+        val diff = now - timestamp
 
         val oneDay = 24 * 60 * 60 * 1000L
 
@@ -52,5 +52,3 @@ object DateTimeUtils {
         }
     }
 }
-
-

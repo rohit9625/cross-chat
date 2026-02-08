@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import dev.androhit.crosschat.chat.domain.model.Message
 
 @Entity(
     tableName = "messages",
@@ -27,4 +28,14 @@ data class MessageEntity(
     val translationStatus: String,
     val createdAt: Long,
     val updatedAt: Long,
+)
+
+fun MessageEntity.toMessage() = Message(
+    id = id,
+    text = text,
+    senderId = senderId,
+    senderName = senderName,
+    autoTranslate = autoTranslate,
+    translationStatus = translationStatus,
+    timestamp = createdAt,
 )
