@@ -5,6 +5,7 @@ import dev.androhit.crosschat.auth.ui.viewmodel.SignUpViewModel
 import dev.androhit.crosschat.chat.ui.viewmodels.ChatListViewModel
 import dev.androhit.crosschat.chat.ui.viewmodels.CreateChatViewModel
 import dev.androhit.crosschat.chat.ui.viewmodels.MessagingViewModel
+import dev.androhit.crosschat.profile.ui.viewmodels.MyProfileViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -22,4 +23,5 @@ val uiModule = module {
         )
     }
     viewModelOf(::CreateChatViewModel)
+    viewModelOf(::MyProfileViewModel)
 }
