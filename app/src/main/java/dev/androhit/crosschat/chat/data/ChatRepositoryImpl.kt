@@ -140,17 +140,20 @@ class ChatRepositoryImpl(
     }
 
     override suspend fun observeMessages(chatId: Int) {
+        val preferredLanguage = credentialManager.getAccessCredentials().preferredLanguage
         socketClient.observeMessages(chatId).collect { event ->
             when (event) {
                 is SocketEvent.NewMessage -> {
                     localDataSource.upsertMessages(listOf(event.message.asEntity()))
                 }
                 is SocketEvent.MessageTranslated -> {
-                    localDataSource.updateMessageTranslation(
-                        id = event.translation.messageId.toInt(),
-                        translatedText = event.translation.translatedText,
-                        status = "translated"
-                    )
+                    if(preferredLanguage == event.translation.language) {
+                        localDataSource.updateMessageTranslation(
+                            id = event.translation.messageId.toInt(),
+                            translatedText = event.translation.translatedText,
+                            status = "translated"
+                        )
+                    }
                 }
             }
         }
