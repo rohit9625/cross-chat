@@ -34,6 +34,9 @@ class AuthRepositoryImpl(
                     credentialManager.saveAccessCredentials(
                         AccessCredentials(
                             userId = authResponse.user.id,
+                            name = authResponse.user.name,
+                            email = authResponse.user.email,
+                            preferredLanguage = authResponse.user.preferredLanguage,
                             accessToken = authResponse.token
                         )
                     )
@@ -63,6 +66,9 @@ class AuthRepositoryImpl(
                     credentialManager.saveAccessCredentials(
                         AccessCredentials(
                             userId = authResponse.user.id,
+                            name = authResponse.user.name,
+                            email = authResponse.user.email,
+                            preferredLanguage = authResponse.user.preferredLanguage,
                             accessToken = authResponse.token
                         )
                     )
