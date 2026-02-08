@@ -22,4 +22,7 @@ interface ChatDao {
 
     @Query("SELECT * FROM messages WHERE chatId = :chatId ORDER BY createdAt DESC")
     suspend fun getMessagesForChatOnce(chatId: Int): List<MessageEntity>
+
+    @Query("UPDATE messages SET translatedText = :translatedText, translationStatus = :status WHERE id = :id")
+    suspend fun updateMessageTranslation(id: Int, translatedText: String, status: String)
 }

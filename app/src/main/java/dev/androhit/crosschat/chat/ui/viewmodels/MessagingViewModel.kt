@@ -71,7 +71,7 @@ class MessagingViewModel(
     private fun observeMessages() {
         viewModelScope.launch {
             repository.connectToSocket()
-            repository.observeMessages(chatId).launchIn(viewModelScope)
+            repository.observeMessages(chatId)
         }
     }
 

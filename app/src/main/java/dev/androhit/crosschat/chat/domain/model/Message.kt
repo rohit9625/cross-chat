@@ -7,5 +7,7 @@ data class Message(
     val senderName: String,
     val autoTranslate: Boolean = false,
     val translationStatus: String? = null,
+    val translatedText: String? = null,
+    val translatedLanguage: String? = null,
     val timestamp: Long? = null,
 )

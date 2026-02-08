@@ -6,9 +6,12 @@ import dev.androhit.crosschat.chat.data.local.ChatDatabase
 import dev.androhit.crosschat.chat.data.local.ChatLocalDataSource
 import dev.androhit.crosschat.chat.data.remote.ChatRemoteDataSource
 import dev.androhit.crosschat.data.CredentialManager
+import dev.androhit.crosschat.profile.data.UserRepositoryImpl
+import dev.androhit.crosschat.profile.domain.UserRepository
 import dev.androhit.crosschat.util.Constants
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val dataModule = module {
@@ -20,9 +23,12 @@ val dataModule = module {
                 get(),
                 ChatDatabase::class.java,
                 Constants.DB_NAME
-            ).build()
+            )
+            .fallbackToDestructiveMigration(true) // Temporary solution
+            .build()
     }
     single { get<ChatDatabase>().dao }
     singleOf(::ChatLocalDataSource)
     singleOf(::ChatRemoteDataSource)
+    singleOf(::UserRepositoryImpl) bind UserRepository::class
 }

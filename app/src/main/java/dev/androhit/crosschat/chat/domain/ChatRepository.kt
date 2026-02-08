@@ -18,5 +18,5 @@ interface ChatRepository {
     suspend fun connectToSocket()
     fun disconnectFromSocket()
     fun sendMessage(chatId: Int, text: String)
-    fun observeMessages(chatId: Int): Flow<Message>
+    suspend fun observeMessages(chatId: Int)
 }

@@ -34,4 +34,8 @@ class ChatLocalDataSource(private val dao: ChatDao) {
     suspend fun upsertMessages(messages: List<MessageEntity>) {
         dao.upsertMessages(messages)
     }
+
+    suspend fun updateMessageTranslation(id: Int, translatedText: String, status: String) {
+        dao.updateMessageTranslation(id, translatedText, status)
+    }
 }

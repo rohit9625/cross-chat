@@ -14,6 +14,7 @@ import dev.androhit.crosschat.domain.model.Result
 import dev.androhit.crosschat.util.DateTimeUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 
 class ChatRepositoryImpl(
     private val remoteDataSource: ChatRemoteDataSource,
@@ -138,20 +139,23 @@ class ChatRepositoryImpl(
         socketClient.sendMessage(chatId, text)
     }
 
-    override fun observeMessages(chatId: Int): Flow<Message> {
-        return socketClient.observeMessages(chatId).map {
-            val message = Message(
-                id = it.id,
-                text = it.content,
-                senderId = it.senderId,
-                senderName = it.senderName,
-                autoTranslate = it.autoTranslate,
-                translationStatus = it.translationStatus,
-                timestamp = DateTimeUtils.parseUtcDateToLong(it.createdAt),
-            )
-            // Cache the incoming message for true offline-first
-            localDataSource.upsertMessages(listOf(it.asEntity()))
-            message
+    override suspend fun observeMessages(chatId: Int) {
+        val preferredLanguage = credentialManager.getAccessCredentials().preferredLanguage
+        socketClient.observeMessages(chatId).collect { event ->
+            when (event) {
+                is SocketEvent.NewMessage -> {
+                    localDataSource.upsertMessages(listOf(event.message.asEntity()))
+                }
+                is SocketEvent.MessageTranslated -> {
+                    if(preferredLanguage == event.translation.language) {
+                        localDataSource.updateMessageTranslation(
+                            id = event.translation.messageId.toInt(),
+                            translatedText = event.translation.translatedText,
+                            status = "translated"
+                        )
+                    }
+                }
+            }
         }
     }
 }
