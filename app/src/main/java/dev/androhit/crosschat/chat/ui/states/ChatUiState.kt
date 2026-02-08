@@ -13,8 +13,8 @@ data class ChatUiState(
 fun Chat.toUiState() = ChatUiState(
     id = id,
     title = displayName,
-    subTitle = lastMessage?.let {
-        "${lastMessage.senderName?.split(" ")?.first()}: ${lastMessage.text}"
+    subTitle = lastMessageText?.let {
+        "${lastMessageSender?.split(" ")?.first()}: $lastMessageText"
     } ?: "Your chat with $displayName",
     lastMessageTime = DateTimeUtils.formatTime(lastMessageTime),
 )

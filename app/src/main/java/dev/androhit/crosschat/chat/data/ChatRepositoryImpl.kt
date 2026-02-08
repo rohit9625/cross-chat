@@ -1,99 +1,48 @@
 package dev.androhit.crosschat.chat.data
 
-import dev.androhit.crosschat.chat.data.dto.ChatDto
-import dev.androhit.crosschat.chat.data.dto.ChatListDto
-import dev.androhit.crosschat.chat.data.dto.MessageListDto
-import dev.androhit.crosschat.chat.data.dto.UsersListDto
+import dev.androhit.crosschat.chat.data.dto.asEntity
+import dev.androhit.crosschat.chat.data.local.ChatEntity
+import dev.androhit.crosschat.chat.data.local.ChatLocalDataSource
+import dev.androhit.crosschat.chat.data.remote.ChatRemoteDataSource
 import dev.androhit.crosschat.chat.domain.ChatRepository
 import dev.androhit.crosschat.chat.domain.model.Chat
 import dev.androhit.crosschat.chat.domain.model.Message
 import dev.androhit.crosschat.chat.domain.model.User
 import dev.androhit.crosschat.data.CredentialManager
-import dev.androhit.crosschat.data.network.CrossChatApi
-import dev.androhit.crosschat.domain.model.ApiResponse
 import dev.androhit.crosschat.domain.model.DataError
 import dev.androhit.crosschat.domain.model.Result
 import dev.androhit.crosschat.util.DateTimeUtils
-import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class ChatRepositoryImpl(
-    private val api: CrossChatApi,
+    private val remoteDataSource: ChatRemoteDataSource,
+    private val localDataSource: ChatLocalDataSource,
     private val socketClient: ChatSocketClient,
     private val credentialManager: CredentialManager,
 ): ChatRepository {
-    override suspend fun getAllChats(userId: Int): Result<List<Chat>, DataError.Network> {
-        return try {
-            val response = api.get<ApiResponse<ChatListDto>>("chats")
+    override fun getAllChats(userId: Int): Flow<List<Chat>> {
+        return localDataSource.getAllChats()
+    }
 
+    override suspend fun refreshChats(userId: Int): Result<Unit, DataError.Network> {
+        return try {
+            val response = remoteDataSource.getAllChats()
             if (response.success && response.data != null) {
                 val chats = response.data.chats.map { chat ->
                     val displayName = chat.members.find { it.userId != userId }?.name ?: chat.type
-                    val lastMessageTime = DateTimeUtils.parseUtcDate(chat.lastMessage?.createdAt ?: chat.createdAt)
+                    val lastMessageTime = DateTimeUtils.parseUtcDateToLong(chat.lastMessage?.createdAt ?: chat.createdAt)
 
-                    val lastMessage = chat.lastMessage?.let { message ->
-                        val sender = chat.members.find { it.userId == message.senderId }
-                        val senderName = when {
-                            sender == null -> "Unknown"
-                            sender.userId == userId -> "You"
-                            else -> sender.name
-                        }
-                        Message(
-                            id = message.id,
-                            text = message.content,
-                            senderId = message.senderId,
-                            senderName = senderName,
-                            timestamp = lastMessageTime,
-                        )
-                    }
-
-                    Chat(
+                    ChatEntity(
                         id = chat.id,
                         displayName = displayName,
-                        lastMessage = lastMessage,
+                        lastMessageText = chat.lastMessage?.content,
+                        lastMessageSender = chat.lastMessage?.senderName,
                         lastMessageTime = lastMessageTime,
                     )
                 }
-                Result.Success<List<Chat>, DataError.Network>(data = chats)
-            } else {
-                Result.Error<List<Chat>, DataError.Network>(DataError.Network.SERVER_ERROR)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Result.Error<List<Chat>, DataError.Network>(DataError.Network.UNKNOWN)
-        }
-    }
-
-    override suspend fun createChat(participantEmail: String): Result<Chat, DataError.Network> {
-        return try {
-            val response = api.post("chats", mapOf("email" to participantEmail)).body<ApiResponse<ChatDto>>()
-
-            if (response.success && response.data != null) {
-                val userId = credentialManager.getAccessCredentials().userId
-                    ?: return Result.Error(DataError.Network.UNKNOWN)
-                val chat = response.data
-                val displayName = chat.members.find { it.userId != userId }?.name ?: chat.type
-                val lastMessageTime = DateTimeUtils.parseUtcDate(chat.lastMessage?.createdAt ?: chat.createdAt)
-
-                val lastMessage = chat.lastMessage?.let { msg ->
-                    Message(
-                        id = msg.id,
-                        text = msg.content,
-                        senderId = msg.senderId,
-                        senderName = msg.senderName,
-                        timestamp = lastMessageTime,
-                    )
-                }
-
-                Result.Success(
-                    data = Chat(
-                        id = chat.id,
-                        displayName = displayName,
-                        lastMessage = lastMessage,
-                        lastMessageTime = lastMessageTime,
-                    )
-                )
+                localDataSource.upsertChats(chats)
+                Result.Success(Unit)
             } else {
                 Result.Error(DataError.Network.SERVER_ERROR)
             }
@@ -103,21 +52,52 @@ class ChatRepositoryImpl(
         }
     }
 
-    override suspend fun getAllMessages(chatId: Int): Result<List<Message>, DataError.Network> {
+    override suspend fun createChat(participantEmail: String): Result<Chat, DataError.Network> {
         return try {
-            val response = api.get<ApiResponse<MessageListDto>>("chats/$chatId/messages")
-
+            val response = remoteDataSource.createChat(participantEmail)
             if (response.success && response.data != null) {
-                val chats = response.data.messages.map { msg ->
-                    Message(
-                        id = msg.id,
-                        text = msg.content,
-                        senderId = msg.senderId,
-                        senderName = msg.senderName,
-                        timestamp = DateTimeUtils.parseUtcDate(msg.createdAt),
-                    )
-                }
-                Result.Success(data = chats)
+                val userId = credentialManager.getAccessCredentials().userId
+                    ?: return Result.Error(DataError.Network.UNKNOWN)
+                val chatDto = response.data
+                val displayName = chatDto.members.find { it.userId != userId }?.name ?: chatDto.type
+                val lastMessageTime = DateTimeUtils.parseUtcDateToLong(chatDto.lastMessage?.createdAt ?: chatDto.createdAt)
+
+                localDataSource.upsertChats(listOf(ChatEntity(
+                    id = chatDto.id,
+                    displayName = displayName,
+                    lastMessageText = chatDto.lastMessage?.content,
+                    lastMessageSender = chatDto.lastMessage?.senderName,
+                    lastMessageTime = lastMessageTime
+                )))
+
+                val domainChat = Chat(
+                    id = chatDto.id,
+                    displayName = displayName,
+                    lastMessageText = null, // Simplified for immediate creation
+                    lastMessageSender = chatDto.lastMessage?.senderName,
+                    lastMessageTime = lastMessageTime,
+                )
+                Result.Success(domainChat)
+            } else {
+                Result.Error(DataError.Network.SERVER_ERROR)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Error(DataError.Network.UNKNOWN)
+        }
+    }
+
+    override fun getMessagesForChat(chatId: Int): Flow<List<Message>> {
+        return localDataSource.getMessagesForChat(chatId)
+    }
+
+    override suspend fun refreshMessages(chatId: Int): Result<Unit, DataError.Network> {
+        return try {
+            val response = remoteDataSource.getAllMessages(chatId)
+            if (response.success && response.data != null) {
+                val messages = response.data.messages.map { it.asEntity() }
+                localDataSource.upsertMessages(messages)
+                Result.Success(Unit)
             } else {
                 Result.Error(DataError.Network.SERVER_ERROR)
             }
@@ -129,24 +109,18 @@ class ChatRepositoryImpl(
 
     override suspend fun searchUsersByEmail(email: String): Result<List<User>, DataError.Network> {
         return try {
-            val response = api.get<ApiResponse<UsersListDto>>("users/search?email=$email")
-
-            if(response.success && response.data != null) {
-                val users: List<User> = response.data.users.map {
-                    User(
-                        id = it.id,
-                        name = it.name,
-                        email = it.email,
-                    )
+            val response = remoteDataSource.searchUsersByEmail(email)
+            if (response.success && response.data != null) {
+                val users = response.data.users.map {
+                    User(id = it.id, name = it.name, email = it.email)
                 }
-                Result.Success<List<User>, DataError.Network>(users)
+                Result.Success(users)
             } else {
-                Result.Error<List<User>, DataError.Network>(DataError.Network.SERVER_ERROR)
+                Result.Error(DataError.Network.SERVER_ERROR)
             }
-
         } catch (e: Exception) {
             e.printStackTrace()
-            Result.Error<List<User>, DataError.Network>(DataError.Network.UNKNOWN)
+            Result.Error(DataError.Network.UNKNOWN)
         }
     }
 
@@ -166,13 +140,18 @@ class ChatRepositoryImpl(
 
     override fun observeMessages(chatId: Int): Flow<Message> {
         return socketClient.observeMessages(chatId).map {
-            Message(
+            val message = Message(
                 id = it.id,
                 text = it.content,
                 senderId = it.senderId,
                 senderName = it.senderName,
-                timestamp = DateTimeUtils.parseUtcDate(it.createdAt),
+                autoTranslate = it.autoTranslate,
+                translationStatus = it.translationStatus,
+                timestamp = DateTimeUtils.parseUtcDateToLong(it.createdAt),
             )
+            // Cache the incoming message for true offline-first
+            localDataSource.upsertMessages(listOf(it.asEntity()))
+            message
         }
     }
 }

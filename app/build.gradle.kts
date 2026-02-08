@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.google.devtools.ksp)
 }
 
 android {
@@ -32,7 +33,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://cross-chat-backend.vercel.app\""
+                "\"https://cross-chat-backend-692aaaf69006.herokuapp.com\""
             )
             isMinifyEnabled = false
             proguardFiles(
@@ -76,6 +77,10 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.core.ktx)
