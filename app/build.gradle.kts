@@ -26,7 +26,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"http://localhost:8000\""
+                "\"https://cross-chat-backend-692aaaf69006.herokuapp.com\""
             )
         }
         release {
@@ -35,7 +35,7 @@ android {
                 "BASE_URL",
                 "\"https://cross-chat-backend-692aaaf69006.herokuapp.com\""
             )
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

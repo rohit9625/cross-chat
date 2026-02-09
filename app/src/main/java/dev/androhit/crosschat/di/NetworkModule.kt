@@ -64,7 +64,7 @@ val networkModule = module {
 
             install(Logging) {
                 logger = Logger.ANDROID
-                level = LogLevel.ALL
+                level = if(BuildConfig.DEBUG) LogLevel.ALL else LogLevel.NONE
             }
         }
     }
