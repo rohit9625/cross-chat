@@ -2,7 +2,6 @@ name: Android Release CI
 
 on:
   push:
-    branches: [ "main" ]
     tags:
       - "v*.*.*"
       - "v*.*.*-alpha.*"
