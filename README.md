@@ -18,6 +18,10 @@ Its primary focus is on:
 
 This project was built as part of a Hackathon hosted by **[lingo.dev](https://lingo.dev/)** from _31/01/2026 to 8/02/2026_.
 
+You can download the first pre-release version of the _Cross Chat_ Android app here: [v1.0.0-alpha.1](https://github.com/rohit9625/cross-chat/releases/tag/v1.0.0-alpha.1)
+
+>Note: The first alpha release contains some bugs, as building a production-ready application within a week wasn’t feasible for me. However these issues will be addressed in upcoming releases 🙂
+
 ---
 **Cross Chat** demonstrates how multilingual chat can be implemented in a scalable, production-friendly way using modern Android and backend technologies.
 ## Core Features
